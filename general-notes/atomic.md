@@ -1,0 +1,1 @@
+`std::atomic` to protect against UB during threading, but `std::atomic` doesn't allow multiple threads to edit memory at the same time - it just prevents data races from happening by using atomic operations, i.e. makes sure that one thread waits for the other one to finish before proceeding
