@@ -1,4 +1,4 @@
-## What happens when a node creates an outgoing connection, the version handshake and net_processing stuff
+## What happens when a node creates an outgoing connection, the version handshake and net_processing
 
 Before having any kind of communication between two peers, it's necessary both peers have exchanged their version.
 
@@ -179,11 +179,3 @@ After all this, we will finally send the `VERACK` message.
 ```cpp
 m_connman.PushMessage(&pfrom, msg_maker.Make(NetMsgType::VERACK));
 ```cpp
-
-
-
-
-
-
-
-
