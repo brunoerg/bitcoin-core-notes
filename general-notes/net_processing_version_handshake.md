@@ -1,4 +1,4 @@
-## What happens when a node creates an outgoing connection, the version handshake and net_processing
+## net_processing: the version handshake
 
 Before having any kind of communication between two peers, it's necessary both peers have exchanged their version.
 
