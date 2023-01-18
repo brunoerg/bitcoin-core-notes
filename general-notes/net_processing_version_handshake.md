@@ -179,4 +179,4 @@ And then, after all this, we finally send the `VERACK` message.
 
 ```cpp
 m_connman.PushMessage(&pfrom, msg_maker.Make(NetMsgType::VERACK));
-```cpp
+```
