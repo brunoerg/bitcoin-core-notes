@@ -70,7 +70,7 @@ static const int MIN_PEER_PROTO_VERSION = 31800;
 
 ------------------
 
-Now it's time to check the `nonce` from the payload. This `nonce` is generated every time a version package is sent and we check it to detect whether we're not connecting to ourselves.
+Next step is to check the `nonce` from the payload. This `nonce` is generated every time a `version` package is sent and we use it to detect whether we're not connecting to ourselves.
 
 ```cpp
 if (!vRecv.empty()) {
@@ -94,7 +94,8 @@ if (pfrom.IsInboundConn() && !m_connman.CheckIncomingNonce(nNonce))
 
 Another important thing, we previously saw when someone opens a connection with us, 
 we want to know their services to check if we want to stay connected with him. 
-However, it's also important to that peer to know our services.
+However, it's also important to that peer to know our services. It is basically "ok, you want to open a 
+connection with me, let me check your services. Alright, here is mine ones".
 
 ```cpp
 // Inbound peers send us their version message when they connect.
@@ -132,8 +133,8 @@ if (greatest_common_version >= 70016) {
 
 ----------
 
-Now it's time to determine whether we are going to relay transactions to that peer. Fortunately, the conditions are
-well explained in the comments:
+Now we are going to determine whether we are going to relay transactions to that peer. Fortunately, the conditions are
+well explained in the comments, see:
 
 ```cpp
 // Only initialize the Peer::TxRelay m_relay_txs data structure if:
@@ -174,7 +175,7 @@ if (greatest_common_version >= WTXID_RELAY_VERSION && m_txreconciliation) {
 
 ----
 
-After all this, we will finally send the `VERACK` message.
+And then, after all this, we finally send the `VERACK` message.
 
 ```cpp
 m_connman.PushMessage(&pfrom, msg_maker.Make(NetMsgType::VERACK));
