@@ -43,7 +43,7 @@ if (pfrom.ExpectServicesFromConn() && !HasAllDesirableServiceFlags(nServices))
 
 `HasAllDesirableServiceFlags` calls `GetDesirableServiceFlags` which we can see
 it checks, behind the services, if we're able to serve the complete block chain (`NODE_NETWORK`)
-or only the last 288 (2 days) blocks.
+or only the last 288 (2 days) blocks (`NODE_NETWORK_LIMITED`).
 ```cpp
 ServiceFlags GetDesirableServiceFlags(ServiceFlags services) {
     if ((services & NODE_NETWORK_LIMITED) && g_initial_block_download_completed) {
