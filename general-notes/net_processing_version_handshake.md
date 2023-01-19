@@ -1,24 +1,17 @@
-## net_processing: the version handshake
+## net_processing: the "version" handshake
 
 Before having any kind of communication between two peers, it's necessary both peers have exchanged their version.
 
-Let's go to the code to see it in practice. In `net_processing` we have a function to process every message, 
-called `PeerManagerImpl::ProcessMessage`. This function has a parameter called `msg_type`, 
-we use it to check the message type (obviously). One of the message types is called "version", our node won't send any data until we receives this message. Let's see, in practice, how this function 
-processes a "version" message.
+Let's go to the code to see it in practice. In `net_processing` we have a function to process every message, called `PeerManagerImpl::ProcessMessage`. This function has a parameter called `msg_type`, we use it to check the message type (obviously). One of the message types is called "version", our node won't send any data until we receives this message. Let's see, in practice, how this function processes a "version" message.
 
-As every payload, the "version" one contains lots of informations. So, one of the first things we will do 
-is ignoring the `addr_from`, according to [Wiki](https://en.bitcoin.it/wiki/Protocol_documentation#version), 
-this field can be ignored - "It is used to be the network address of the node emitting this message, 
-but most P2P implementations send 26 dummy bytes. The "services" field of the address would also be 
-redundant with the second field of the version message."
+As every payload, the "version" one contains lots of informations. So, one of the first things we will do is ignoring the `addr_from`, according to [Wiki](https://en.bitcoin.it/wiki/Protocol_documentation#version), this field can be ignored - "It is used to be the network address of the node emitting this message, but most P2P implementations send 26 dummy bytes. The "services" field of the address would also be redundant with the second field of the version message."
 ```cpp
 vRecv.ignore(8); // Ignore the addrMe service bits sent by the peer
 ```
 
 After ignoring it, now it's time to check whether the connection is `inbound`. 
 
-**Remember**: `inbound` they opened the connection to us, `outbound` we opened the connection to them.
+**Remember**: `inbound` they opened the connection with us, `outbound` we opened the connection with them.
 
 If the connection isn't `inbound`, we have to call `SetServices` to update the 
 services related to that address.
@@ -41,9 +34,7 @@ if (pfrom.ExpectServicesFromConn() && !HasAllDesirableServiceFlags(nServices))
 }
 ```
 
-`HasAllDesirableServiceFlags` calls `GetDesirableServiceFlags` which we can see
-it checks, behind the services, if we're able to serve the complete block chain (`NODE_NETWORK`)
-or only the last 288 (2 days) blocks (`NODE_NETWORK_LIMITED`).
+`HasAllDesirableServiceFlags` calls `GetDesirableServiceFlags` which we can see it checks, behind the services, if we're able to serve the complete block chain (`NODE_NETWORK`) or only the last 288 (2 days) blocks (`NODE_NETWORK_LIMITED`).
 ```cpp
 ServiceFlags GetDesirableServiceFlags(ServiceFlags services) {
     if ((services & NODE_NETWORK_LIMITED) && g_initial_block_download_completed) {
@@ -93,10 +84,7 @@ if (pfrom.IsInboundConn() && !m_connman.CheckIncomingNonce(nNonce))
 }
 ```
 
-Another important thing, we previously saw when someone opens a connection with us, 
-we want to know their services to check if we want to stay connected with him. 
-However, it's also important to that peer to know our services. It is basically "ok, you want to open a 
-connection with me, let me check your services. Alright, here is mine ones".
+Another important thing, we previously saw when someone opens a connection with us, we want to know their services to check if we want to stay connected with him. However, it's also important to that peer to know our services. It is basically "ok, you want to open a connection with me, let me check your services. Alright, here is mine ones".
 
 ```cpp
 // Inbound peers send us their version message when they connect.
@@ -107,7 +95,7 @@ if (pfrom.IsInboundConn()) {
 ```
 ------------
 
-Now we need to know our greatest common version, we're going to use it to check support to `BIP155`, `wtxid_relay` and others.
+Now we need to know our greatest common version to know how compatible we are, you can note in the code we're checking support to `BIP155`, `wtxid_relay` and others.
 
 ```cpp
 // Change version
@@ -134,7 +122,7 @@ if (greatest_common_version >= 70016) {
 
 ----------
 
-Now we are going to determine whether we are going to relay transactions to that peer. Fortunately, the conditions are
+In this next step, we will determine whether we will relay transactions to that peer. Fortunately, the conditions are
 well explained in the comments, see:
 
 ```cpp
@@ -156,7 +144,7 @@ if (!pfrom.IsBlockOnlyConn() &&
 }
 ```
 
-We also check if we support tx reconcilition, if so, we announce it.
+We also check if we support tx reconcilition (introduced in BIP-330), if so, we announce it.
 
 ```cpp
 if (greatest_common_version >= WTXID_RELAY_VERSION && m_txreconciliation) {
